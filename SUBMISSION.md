@@ -7,7 +7,7 @@
 - **GitHub:** https://github.com/Milindx07
 - **Selected problem:** 05 - Reliable Conversation Runtime
 - **Demo video:** https://drive.google.com/file/d/1-2j5ImBPnHaUsybMgLxvcl8J0X3HTW5V/view?usp=sharing
-- **Live demo:** local Node/SSE demo at `http://localhost:5173` after running `npm run live`
+- **Live demo:** local Node/SSE demo after running `npm run live`; it prints the exact `http://localhost:<port>` URL.
 
 ## Run the project
 
@@ -42,6 +42,8 @@ Then open:
 http://localhost:5173
 ```
 
+If port `5173` is already busy, the server automatically tries the next available port and prints the exact URL to open, such as `http://localhost:5174`.
+
 This is a local live demo rather than a hosted static link because it runs the TypeScript/Node runtime and streams events over Server-Sent Events.
 
 On Windows, the reviewer can also double-click:
@@ -53,7 +55,7 @@ start-live-demo.bat
 Successful scenario:
 
 - CLI: run `npm run demo` and review section `1. Successful streamed turn`.
-- Browser: run `npm run live`, open `http://localhost:5173`, and click `Run Success`.
+- Browser: run `npm run live`, open the printed `http://localhost:<port>` URL, and click `Run Success`.
 
 Failure and recovery scenarios:
 

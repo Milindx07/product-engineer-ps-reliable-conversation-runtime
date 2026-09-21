@@ -32,13 +32,15 @@ Then open:
 http://localhost:5173
 ```
 
+If port `5173` is already busy, the server automatically tries the next available port and prints the exact URL to open, such as `http://localhost:5174`.
+
 The live demo is local because the app runs a Node.js Server-Sent Events endpoint. It is not a static GitHub Pages site. In the demo, click `Run Success`, `Run Rejection`, `Run Cancellation`, `Run Timeout`, `Run Failure`, and `Run Benchmark`.
 
 `npm run benchmark` runs at least 10 deterministic iterations each for successful completion, policy rejection, cancellation, timeout, and provider failure.
 
-`npm run live` starts a local browser demo at `http://localhost:5173`.
+`npm run live` starts a local browser demo and prints the local URL.
 
-On Windows, `start-live-demo.bat` starts the live demo and opens the browser.
+On Windows, `start-live-demo.bat` starts the live demo and prints the local URL to open.
 
 ## Component Responsibilities
 

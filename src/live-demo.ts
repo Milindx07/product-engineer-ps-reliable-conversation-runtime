@@ -9,7 +9,7 @@ import { runBenchmark } from "./benchmark.js";
 
 type LiveScenario = "success" | "rejection" | "cancellation" | "timeout" | "failure";
 
-const PORT = Number(process.env.PORT ?? 5173);
+const DEFAULT_PORT = Number(process.env.PORT ?? 5173);
 
 class TimedProvider implements ModelProvider {
   calls = 0;
@@ -201,69 +201,88 @@ function isScenario(value: string | null): value is LiveScenario {
   );
 }
 
-const server = createServer(async (request, response) => {
-  try {
-    const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
+function createLiveServer() {
+  return createServer(async (request, response) => {
+    try {
+      const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
 
-    if (url.pathname === "/") {
-      response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      response.end(html);
-      return;
-    }
-
-    if (url.pathname === "/api/run") {
-      const scenario = url.searchParams.get("scenario");
-      if (!isScenario(scenario)) {
-        response.writeHead(400, { "Content-Type": "application/json" });
-        response.end(JSON.stringify({ error: "unknown scenario" }));
+      if (url.pathname === "/") {
+        response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        response.end(html);
         return;
       }
-      await handleRun(response, scenario);
-      return;
-    }
 
-    if (url.pathname === "/api/benchmark") {
-      const runs = await runBenchmark(10);
-      const terminalStateCounts = runs.reduce<Record<string, number>>((counts, run) => {
-        counts[run.result.terminalState] = (counts[run.result.terminalState] ?? 0) + 1;
-        return counts;
-      }, {});
-      response.writeHead(200, { "Content-Type": "application/json" });
-      response.end(
-        JSON.stringify(
-          {
-            totalRuns: runs.length,
-            terminalStateCounts,
-            verified: {
-              exactlyOneTerminalState: true,
-              rejectedRunsNeverInvokeProvider: true,
-              nonSuccessRunsNeverPersistCompletedAssistantResponse: true,
-              noEventsAfterTerminal: true,
-              liveModelRequired: false,
+      if (url.pathname === "/api/run") {
+        const scenario = url.searchParams.get("scenario");
+        if (!isScenario(scenario)) {
+          response.writeHead(400, { "Content-Type": "application/json" });
+          response.end(JSON.stringify({ error: "unknown scenario" }));
+          return;
+        }
+        await handleRun(response, scenario);
+        return;
+      }
+
+      if (url.pathname === "/api/benchmark") {
+        const runs = await runBenchmark(10);
+        const terminalStateCounts = runs.reduce<Record<string, number>>((counts, run) => {
+          counts[run.result.terminalState] = (counts[run.result.terminalState] ?? 0) + 1;
+          return counts;
+        }, {});
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(
+          JSON.stringify(
+            {
+              totalRuns: runs.length,
+              terminalStateCounts,
+              verified: {
+                exactlyOneTerminalState: true,
+                rejectedRunsNeverInvokeProvider: true,
+                nonSuccessRunsNeverPersistCompletedAssistantResponse: true,
+                noEventsAfterTerminal: true,
+                liveModelRequired: false,
+              },
             },
-          },
-          null,
-          2,
-        ),
-      );
-      return;
-    }
+            null,
+            2,
+          ),
+        );
+        return;
+      }
 
-    response.writeHead(404, { "Content-Type": "text/plain" });
-    response.end("Not found");
-  } catch (error) {
-    response.writeHead(500, { "Content-Type": "application/json" });
-    response.end(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : String(error),
-      }),
-    );
-  }
-});
+      response.writeHead(404, { "Content-Type": "text/plain" });
+      response.end("Not found");
+    } catch (error) {
+      response.writeHead(500, { "Content-Type": "application/json" });
+      response.end(
+        JSON.stringify({
+          error: error instanceof Error ? error.message : String(error),
+        }),
+      );
+    }
+  });
+}
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  server.listen(PORT, () => {
-    console.log(`Live demo running at http://localhost:${PORT}`);
+  listenWithPortFallback(DEFAULT_PORT);
+}
+
+function listenWithPortFallback(port: number, attemptsRemaining = 10): void {
+  const candidateServer = createLiveServer();
+
+  candidateServer.once("error", (error: NodeJS.ErrnoException) => {
+    if (error.code === "EADDRINUSE" && attemptsRemaining > 0) {
+      console.log(`Port ${port} is busy, trying ${port + 1}...`);
+      candidateServer.close();
+      listenWithPortFallback(port + 1, attemptsRemaining - 1);
+      return;
+    }
+
+    throw error;
+  });
+
+  candidateServer.listen(port, () => {
+    console.log(`Live demo running at http://localhost:${port}`);
   });
 }
 
