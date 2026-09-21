@@ -20,6 +20,8 @@ npm run check
 This project includes a local browser demo for the reliable conversation runtime.
 
 ```bash
+git clone https://github.com/Milindx07/product-engineer-ps-reliable-conversation-runtime.git
+cd product-engineer-ps-reliable-conversation-runtime
 npm install
 npm run live
 ```

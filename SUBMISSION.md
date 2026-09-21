@@ -19,6 +19,8 @@ Prerequisites:
 Install dependencies:
 
 ```text
+git clone https://github.com/Milindx07/product-engineer-ps-reliable-conversation-runtime.git
+cd product-engineer-ps-reliable-conversation-runtime
 npm install
 ```
 
