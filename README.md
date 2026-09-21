@@ -15,6 +15,23 @@ npm run live
 npm run check
 ```
 
+## Live Demo
+
+This project includes a local browser demo for the reliable conversation runtime.
+
+```bash
+npm install
+npm run live
+```
+
+Then open:
+
+```text
+http://localhost:5173
+```
+
+The live demo is local because the app runs a Node.js Server-Sent Events endpoint. It is not a static GitHub Pages site. In the demo, click `Run Success`, `Run Rejection`, `Run Cancellation`, `Run Timeout`, `Run Failure`, and `Run Benchmark`.
+
 `npm run benchmark` runs at least 10 deterministic iterations each for successful completion, policy rejection, cancellation, timeout, and provider failure.
 
 `npm run live` starts a local browser demo at `http://localhost:5173`.

@@ -7,6 +7,7 @@
 - **GitHub:** https://github.com/Milindx07
 - **Selected problem:** 05 - Reliable Conversation Runtime
 - **Demo video:** https://drive.google.com/file/d/1-2j5ImBPnHaUsybMgLxvcl8J0X3HTW5V/view?usp=sharing
+- **Live demo:** local Node/SSE demo at `http://localhost:5173` after running `npm run live`
 
 ## Run the project
 
@@ -38,6 +39,8 @@ Then open:
 ```text
 http://localhost:5173
 ```
+
+This is a local live demo rather than a hosted static link because it runs the TypeScript/Node runtime and streams events over Server-Sent Events.
 
 On Windows, the reviewer can also double-click:
 
